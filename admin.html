@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>หลังบ้าน | ศูนย์เรียนรู้ฯ เทศบาลตำบลเวียงชัย</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div id="loginView" class="login-page">
+  <div class="login-card">
+    <div class="logo">🌱</div>
+    <h1>ระบบหลังบ้าน</h1>
+    <p>ศูนย์เรียนรู้ฯ เทศบาลตำบลเวียงชัย</p>
+    <form id="loginForm">
+      <label>ชื่อผู้ใช้<input id="username" autocomplete="username" required></label>
+      <label>รหัสผ่าน<input id="password" type="password" autocomplete="current-password" required></label>
+      <button class="btn primary">เข้าสู่ระบบ</button>
+      <div id="loginError" class="error"></div>
+    </form>
+    <a href="index.html" class="back">← กลับหน้าเว็บไซต์</a>
+  </div>
+</div>
+
+<div id="adminApp" class="app hidden">
+  <aside class="sidebar">
+    <div class="side-brand">🌱 <span>ศูนย์เรียนรู้ฯ</span></div>
+    <nav>
+      <button data-section="dashboard" class="active">📊 แดชบอร์ด</button>
+      <button data-section="guests">✍️ สมุดเยี่ยมชม</button>
+      <button data-section="news">📰 ข่าว/กิจกรรม</button>
+      <button data-section="gallery">🖼️ รูปภาพ</button>
+      <button data-section="documents">📄 เอกสาร</button>
+      <button data-section="content">⚙️ จัดการเว็บไซต์</button>
+    </nav>
+    <button id="logoutBtn" class="logout">ออกจากระบบ</button>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button id="mobileMenu" class="hamb">☰</button>
+      <div><b>ระบบจัดการเว็บไซต์</b><small> เจ้าหน้าที่</small></div>
+      <a href="index.html" target="_blank" class="view-site">ดูเว็บไซต์ ↗</a>
+    </header>
+
+    <section id="dashboard" class="section active">
+      <div class="page-title"><div><h2>แดชบอร์ด</h2><p>ภาพรวมข้อมูลและสถิติของศูนย์เรียนรู้ฯ</p></div><button class="btn" onclick="exportDashboardPDF()">📄 ส่งออก PDF</button></div>
+      <div class="stats">
+        <div class="stat"><span>👥</span><b id="guestCount">0</b><small>ผู้เยี่ยมชมทั้งหมด</small></div>
+        <div class="stat"><span>✍️</span><b id="signedCount">0</b><small>รายการมีลายเซ็น</small></div>
+        <div class="stat"><span>📰</span><b id="newsCount">3</b><small>ข่าว/กิจกรรม</small></div>
+        <div class="stat"><span>📚</span><b>13</b><small>ฐานการเรียนรู้</small></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>สถิติผู้เยี่ยมชมรายเดือน</h3><div id="monthlyChart" class="chart"></div></div>
+        <div class="panel"><h3>ข้อมูลล่าสุด</h3><div id="recentGuests"></div></div>
+      </div>
+      <div class="panel"><h3>การจัดสรรพื้นที่ตามแนวคิดเศรษฐกิจพอเพียง</h3><div class="pie-wrap"><div class="pie"></div><div><p>💧 แหล่งน้ำ <b>30%</b></p><p>🌾 นาข้าว <b>30%</b></p><p>🌱 พืชสวน/พืชไร่ <b>30%</b></p><p>🏠 ที่อยู่อาศัยและอื่น ๆ <b>10%</b></p></div></div></div>
+    </section>
+
+    <section id="guests" class="section">
+      <div class="page-title"><div><h2>สมุดเยี่ยมชม</h2><p>ดู ค้นหา และส่งออกข้อมูลผู้เยี่ยมชม</p></div><button class="btn primary" onclick="exportGuestsPDF()">📄 PDF สมุดเยี่ยมชม</button></div>
+      <div class="toolbar"><input id="guestSearch" placeholder="ค้นหาชื่อ หน่วยงาน หรือข้อความ..." oninput="renderGuests()"><button class="btn" onclick="downloadGuestsCSV()">⬇️ CSV</button><button class="btn danger" onclick="clearGuests()">ล้างข้อมูลตัวอย่าง</button></div>
+      <div class="table-wrap"><table><thead><tr><th>วันที่</th><th>ชื่อ</th><th>หน่วยงาน</th><th>ข้อความ</th><th>ลายเซ็น</th></tr></thead><tbody id="guestTable"></tbody></table></div>
+    </section>
+
+    <section id="news" class="section">
+      <div class="page-title"><div><h2>ข่าว / กิจกรรม</h2><p>เตรียมพื้นที่สำหรับเพิ่ม แก้ไข และลบข่าว</p></div><button class="btn primary" onclick="alert('ฟังก์ชันเพิ่มข่าวจะเชื่อมฐานข้อมูลในขั้นถัดไป')">＋ เพิ่มข่าว</button></div>
+      <div class="panel"><div class="notice">เวอร์ชันนี้เป็นโครงหลังบ้านบน GitHub Pages สามารถใช้เป็นต้นแบบหน้าจอได้ เมื่อเชื่อม Google Sheets/Supabase จะบันทึกข่าวจริงจากเจ้าหน้าที่ได้</div></div>
+      <div class="item-list"><div class="item"><b>ข่าวหรือกิจกรรมที่ 1</b><span>เผยแพร่</span><button class="btn">แก้ไข</button></div><div class="item"><b>ข่าวหรือกิจกรรมที่ 2</b><span>เผยแพร่</span><button class="btn">แก้ไข</button></div><div class="item"><b>ข่าวหรือกิจกรรมที่ 3</b><span>ร่าง</span><button class="btn">แก้ไข</button></div></div>
+    </section>
+
+    <section id="gallery" class="section">
+      <div class="page-title"><div><h2>รูปภาพกิจกรรม</h2><p>จัดการอัลบั้มและรูปภาพ</p></div><button class="btn primary">＋ เพิ่มรูปภาพ</button></div>
+      <div class="gallery-admin"><div>📷<b>กิจกรรมที่ 1</b></div><div>📷<b>กิจกรรมที่ 2</b></div><div>📷<b>กิจกรรมที่ 3</b></div><div>📷<b>กิจกรรมที่ 4</b></div></div>
+    </section>
+
+    <section id="documents" class="section">
+      <div class="page-title"><div><h2>เอกสารดาวน์โหลด</h2><p>จัดการเอกสารสำหรับผู้ขอเข้าศึกษาดูงาน</p></div><button class="btn primary">＋ เพิ่มเอกสาร</button></div>
+      <div class="item-list"><div class="item"><b>แบบคำขอเข้าศึกษาดูงาน.pdf</b><span>PDF</span><button class="btn">จัดการ</button></div><div class="item"><b>กำหนดการศึกษาดูงาน.pdf</b><span>PDF</span><button class="btn">จัดการ</button></div></div>
+    </section>
+
+    <section id="content" class="section">
+      <div class="page-title"><div><h2>จัดการเว็บไซต์</h2><p>พื้นที่สำหรับแก้ไขข้อมูลส่วนต่าง ๆ ของเว็บไซต์</p></div><button class="btn primary" onclick="alert('ตัวแก้ไขเนื้อหาจะบันทึกลงฐานข้อมูลเมื่อเชื่อม Backend')">บันทึกการแก้ไข</button></div>
+      <div class="form-grid">
+        <div class="panel"><h3>ข้อมูลหน้าแรก</h3><label>ชื่อเว็บไซต์<input value="ศูนย์เรียนรู้ร่วมใจพัฒนาตามแนวทางเศรษฐกิจพอเพียง"></label><label>คำโปรย<textarea>แหล่งเรียนรู้สำหรับประชาชน นักเรียน หน่วยงาน และผู้สนใจ</textarea></label></div>
+        <div class="panel"><h3>ข้อมูลติดต่อ</h3><label>ที่อยู่<input placeholder="ใส่ที่อยู่จริง"></label><label>โทรศัพท์<input placeholder="ใส่หมายเลขโทรศัพท์"></label><label>Google Maps Embed URL<input placeholder="วางลิงก์ Embed"></label></div>
+      </div>
+      <div class="panel security"><h3>🔐 ความปลอดภัย</h3><p>หน้าล็อกอินนี้เป็น <b>ต้นแบบฝั่งหน้าเว็บ</b> สำหรับ GitHub Pages เท่านั้น ไม่ควรใช้รหัสผ่านจริงหรือข้อมูลลับ เพราะโค้ด Static สามารถถูกตรวจสอบได้</p><p>สำหรับระบบใช้งานจริง ควรเชื่อม Google Apps Script หรือ Supabase เพื่อทำ Authentication และฐานข้อมูล</p></div>
+    </section>
+  </main>
+</div>
+<div id="printArea"></div>
+<script src="admin.js"></script>
+</body>
+</html>
