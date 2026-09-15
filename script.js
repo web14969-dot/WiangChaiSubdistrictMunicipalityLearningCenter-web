@@ -33,20 +33,48 @@ const guestOrg=document.getElementById('guestOrg');
 const guestMessage=document.getElementById('guestMessage');
 
 function renderGuests(){
-  const data=JSON.parse(localStorage.getItem('wiangchaiGuests')||'[]');
+  guestList.innerHTML='<div class="guest-entry">กำลังโหลดข้อมูล...</div>';
 
-  guestList.innerHTML=data.length
-    ? data.map(x=>`
-      <div class="guest-entry">
-        <b>${escapeHtml(x.name)}</b>
-        <small>${escapeHtml(x.org||'')} · ${escapeHtml(x.date)}</small>
-        <p>${escapeHtml(x.message)}</p>
-        ${x.signature
-          ? `<img class="signature-preview" src="${x.signature}" alt="ลายเซ็น">`
-          : ''}
-      </div>
-    `).join('')
-    : '<div class="guest-entry">ยังไม่มีรายการเยี่ยมชม</div>';
+  const callbackName='guestCallback_'+Date.now();
+
+  window[callbackName]=function(response){
+    try{
+      if(!response || !response.success){
+        throw new Error('โหลดข้อมูลไม่สำเร็จ');
+      }
+
+      const data=response.data||[];
+
+      guestList.innerHTML=data.length
+      ? data.map(x=>`
+        <div class="guest-entry">
+          <b>${escapeHtml(x.name)}</b>
+          <small>${escapeHtml(x.organization||'')} · ${escapeHtml(x.date)}</small>
+          <p>${escapeHtml(x.message||'')}</p>
+          ${x.signature
+            ? `<img class="signature-preview" src="${x.signature}" alt="ลายเซ็น">`
+            : ''}
+        </div>
+      `).join('')
+      : '<div class="guest-entry">ยังไม่มีรายการเยี่ยมชม</div>';
+
+    }catch(error){
+      console.error(error);
+      guestList.innerHTML='<div class="guest-entry">ไม่สามารถโหลดข้อมูลได้</div>';
+    }
+
+    delete window[callbackName];
+    const script=document.getElementById(callbackName);
+    if(script) script.remove();
+  };
+
+  const script=document.createElement('script');
+  script.id=callbackName;
+  script.src=
+    GUEST_API_URL+
+    '?action=guests&callback='+callbackName;
+
+  document.body.appendChild(script);
 }
 
 function escapeHtml(s){
