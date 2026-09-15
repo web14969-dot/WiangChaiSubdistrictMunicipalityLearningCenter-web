@@ -24,18 +24,89 @@ canvas.addEventListener('mousedown',start);canvas.addEventListener('mousemove',m
 canvas.addEventListener('touchstart',start,{passive:false});canvas.addEventListener('touchmove',move,{passive:false});canvas.addEventListener('touchend',end);
 document.getElementById('clearSign').onclick=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);hasSignature=false};
 
-const guestForm=document.getElementById('guestForm'),guestList=document.getElementById('guestList'),status=document.getElementById('guestStatus');
+const GUEST_API_URL='https://script.google.com/macros/s/AKfycbzj3LmnjvCFQbWj9loPdf4PXhqzdS2ilDFVjDt7YNn9h4d_zlO-wYKSJTCTGOKtibdOdQ/exec';
+const guestForm=document.getElementById('guestForm');
+const guestList=document.getElementById('guestList');
+const status=document.getElementById('guestStatus');
+const guestName=document.getElementById('guestName');
+const guestOrg=document.getElementById('guestOrg');
+const guestMessage=document.getElementById('guestMessage');
+
 function renderGuests(){
   const data=JSON.parse(localStorage.getItem('wiangchaiGuests')||'[]');
-  guestList.innerHTML=data.length?data.map(x=>`<div class="guest-entry"><b>${escapeHtml(x.name)}</b><small>${escapeHtml(x.org||'')} · ${escapeHtml(x.date)}</small><p>${escapeHtml(x.message)}</p>${x.signature?`<img class="signature-preview" src="${x.signature}" alt="ลายเซ็น">`:''}</div>`).join(''):'<div class="guest-entry">ยังไม่มีรายการเยี่ยมชม</div>';
+
+  guestList.innerHTML=data.length
+    ? data.map(x=>`
+      <div class="guest-entry">
+        <b>${escapeHtml(x.name)}</b>
+        <small>${escapeHtml(x.org||'')} · ${escapeHtml(x.date)}</small>
+        <p>${escapeHtml(x.message)}</p>
+        ${x.signature
+          ? `<img class="signature-preview" src="${x.signature}" alt="ลายเซ็น">`
+          : ''}
+      </div>
+    `).join('')
+    : '<div class="guest-entry">ยังไม่มีรายการเยี่ยมชม</div>';
 }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-guestForm.addEventListener('submit',e=>{
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,m=>({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#039;'
+  }[m]));
+}
+
+guestForm.addEventListener('submit',async e=>{
   e.preventDefault();
-  const data=JSON.parse(localStorage.getItem('wiangchaiGuests')||'[]');
-  data.unshift({name:guestName.value,org:guestOrg.value,message:guestMessage.value,date:new Date().toLocaleDateString('th-TH'),signature:hasSignature?canvas.toDataURL('image/png'):''});
-  localStorage.setItem('wiangchaiGuests',JSON.stringify(data.slice(0,30)));
-  status.textContent='บันทึกข้อมูลในเครื่องนี้แล้ว (โหมดตัวอย่าง)';
-  guestForm.reset();ctx.clearRect(0,0,canvas.width,canvas.height);hasSignature=false;renderGuests();
+
+  const guestData={
+    name:guestName.value.trim(),
+    organization:guestOrg.value.trim(),
+    message:guestMessage.value.trim(),
+    signature:hasSignature ? canvas.toDataURL('image/png') : ''
+  };
+
+  status.textContent='กำลังบันทึกข้อมูล...';
+
+  try{
+    await fetch(GUEST_API_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{
+        'Content-Type':'text/plain;charset=utf-8'
+      },
+      body:JSON.stringify(guestData)
+    });
+
+    status.textContent='บันทึกสมุดเยี่ยมชมเรียบร้อยแล้ว';
+
+    const data=JSON.parse(localStorage.getItem('wiangchaiGuests')||'[]');
+
+    data.unshift({
+      name:guestData.name,
+      org:guestData.organization,
+      message:guestData.message,
+      date:new Date().toLocaleDateString('th-TH'),
+      signature:guestData.signature
+    });
+
+    localStorage.setItem(
+      'wiangchaiGuests',
+      JSON.stringify(data.slice(0,30))
+    );
+
+    guestForm.reset();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    hasSignature=false;
+    renderGuests();
+
+  }catch(error){
+    console.error(error);
+    status.textContent='ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง';
+  }
 });
+
 renderGuests();
