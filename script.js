@@ -97,19 +97,18 @@ guestForm.addEventListener('submit',async e=>{
     signature:hasSignature ? canvas.toDataURL('image/png') : ''
   };
 
-  status.textContent='กำลังบันทึกข้อมูล...';
+ status.textContent='บันทึกข้อมูลแล้ว กำลังส่งเข้าระบบ...';
 
-  try{
-    await fetch(GUEST_API_URL,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{
-        'Content-Type':'text/plain;charset=utf-8'
-      },
-      body:JSON.stringify(guestData)
-    });
-
-    status.textContent='บันทึกสมุดเยี่ยมชมเรียบร้อยแล้ว';
+fetch(GUEST_API_URL,{
+  method:'POST',
+  mode:'no-cors',
+  headers:{
+    'Content-Type':'text/plain;charset=utf-8'
+  },
+  body:JSON.stringify(guestData)
+}).catch(error=>{
+  console.error('ส่งข้อมูลไม่สำเร็จ:',error);
+});
 
     const data=JSON.parse(localStorage.getItem('wiangchaiGuests')||'[]');
 
