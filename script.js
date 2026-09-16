@@ -380,7 +380,7 @@ function loadGuestsFromServer() {
             signature: ''
           }));
 
-        if (serverGuests.length > 0) {
+        if (response.success) {
 
           localStorage.setItem(
             'guestbook',
