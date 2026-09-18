@@ -584,3 +584,111 @@ loadLocalGuests();
 setTimeout(() => {
   loadGuestsFromServer();
 }, 500);
+// ========================================
+// ระบบข่าว / กิจกรรม
+// ========================================
+
+function loadNewsFromServer() {
+  const newsList = document.getElementById('newsList');
+
+  if (!newsList) return;
+
+  const callbackName = 'showNews_' + Date.now();
+
+  window[callbackName] = function(response) {
+    try {
+      if (!response || !response.success) {
+        newsList.innerHTML = '<p>ไม่สามารถโหลดข่าวได้</p>';
+        return;
+      }
+
+      const news = response.data || [];
+
+      const publishedNews = news.filter(item => {
+        return item.status === 'เผยแพร่';
+      });
+
+      if (publishedNews.length === 0) {
+        newsList.innerHTML = '<p>ยังไม่มีข่าวหรือกิจกรรม</p>';
+        return;
+      }
+
+      newsList.innerHTML = publishedNews.map(item => {
+        return `
+          <article class="news-card">
+            <div class="news-image">📰</div>
+            <div>
+              <small>${formatNewsDate(item.date)}</small>
+              <h3>${escapeNewsHTML(item.title)}</h3>
+              <p>${escapeNewsHTML(item.detail)}</p>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+    } catch (error) {
+      console.error('โหลดข่าวไม่สำเร็จ:', error);
+      newsList.innerHTML = '<p>เกิดข้อผิดพลาดในการโหลดข่าว</p>';
+    } finally {
+      delete window[callbackName];
+      const script = document.getElementById(callbackName);
+
+      if (script) {
+        script.remove();
+      }
+    }
+  };
+
+  const script = document.createElement('script');
+
+  script.id = callbackName;
+
+  script.src =
+    GUEST_API_URL +
+    '?action=news&callback=' +
+    callbackName;
+
+  script.onerror = function() {
+    newsList.innerHTML = '<p>ไม่สามารถเชื่อมต่อระบบข่าวได้</p>';
+
+    delete window[callbackName];
+    script.remove();
+  };
+
+  document.body.appendChild(script);
+}
+
+
+function formatNewsDate(dateValue) {
+  if (!dateValue) return '';
+
+  const date = new Date(dateValue);
+
+  if (isNaN(date.getTime())) {
+    return dateValue;
+  }
+
+  return date.toLocaleDateString('th-TH', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+}
+
+
+function escapeNewsHTML(text) {
+  if (text === null || text === undefined) {
+    return '';
+  }
+
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+
+// โหลดข่าวเมื่อเปิดเว็บไซต์
+loadNewsFromServer();
