@@ -646,7 +646,9 @@ function loadNewsFromServer() {
   script.src =
     GUEST_API_URL +
     '?action=news&callback=' +
-    callbackName;
+    callbackName +
+'&t=' +
+Date.now();
 
   script.onerror = function() {
     newsList.innerHTML = '<p>ไม่สามารถเชื่อมต่อระบบข่าวได้</p>';
