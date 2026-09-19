@@ -690,6 +690,13 @@ function formatNewsDate(dateValue) {
   return `${day} ${month} ${Number(year) + 543}`;
 }
 
+
+// ป้องกันข้อความข่าวทำให้ HTML เสีย
+function escapeNewsHTML(text) {
+  if (text === null || text === undefined) {
+    return '';
+  }
+
   return String(text)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -697,7 +704,5 @@ function formatNewsDate(dateValue) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
-
-
 // โหลดข่าวเมื่อเปิดเว็บไซต์
 loadNewsFromServer();
