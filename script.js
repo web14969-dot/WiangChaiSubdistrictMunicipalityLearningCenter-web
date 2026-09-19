@@ -660,7 +660,6 @@ Date.now();
   document.body.appendChild(script);
 }
 
-
 function formatNewsDate(dateValue) {
   if (!dateValue) return '';
 
@@ -670,18 +669,26 @@ function formatNewsDate(dateValue) {
     return dateValue;
   }
 
-  return date.toLocaleDateString('th-TH', {
+  const parts = new Intl.DateTimeFormat('th-TH', {
     day: 'numeric',
     month: 'long',
-    year: 'numeric'
+    year: 'numeric',
+    calendar: 'gregory',
+    timeZone: 'Asia/Bangkok'
+  }).formatToParts(date);
+
+  let day = '';
+  let month = '';
+  let year = '';
+
+  parts.forEach(part => {
+    if (part.type === 'day') day = part.value;
+    if (part.type === 'month') month = part.value;
+    if (part.type === 'year') year = part.value;
   });
+
+  return `${day} ${month} ${Number(year) + 543}`;
 }
-
-
-function escapeNewsHTML(text) {
-  if (text === null || text === undefined) {
-    return '';
-  }
 
   return String(text)
     .replace(/&/g, '&amp;')
