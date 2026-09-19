@@ -663,31 +663,40 @@ Date.now();
 function formatNewsDate(dateValue) {
   if (!dateValue) return '';
 
-  const date = new Date(dateValue);
+  let value = String(dateValue);
+
+  // Google Apps Script ส่งวันที่ พ.ศ. มาในรูปแบบ ISO
+  // เช่น 2569-09-15T17:00:00.000Z
+  // JavaScript จะมอง 2569 เป็น ค.ศ.
+  // จึงต้องแปลงกลับเป็น ค.ศ. ก่อน
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})(.*)$/);
+
+  if (match) {
+    const year = Number(match[1]);
+
+    if (year > 2400) {
+      value =
+        (year - 543) +
+        '-' +
+        match[2] +
+        '-' +
+        match[3] +
+        match[4];
+    }
+  }
+
+  const date = new Date(value);
 
   if (isNaN(date.getTime())) {
     return dateValue;
   }
 
-  const parts = new Intl.DateTimeFormat('th-TH', {
+  return date.toLocaleDateString('th-TH', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
-    calendar: 'gregory',
     timeZone: 'Asia/Bangkok'
-  }).formatToParts(date);
-
-  let day = '';
-  let month = '';
-  let year = '';
-
-  parts.forEach(part => {
-    if (part.type === 'day') day = part.value;
-    if (part.type === 'month') month = part.value;
-    if (part.type === 'year') year = part.value;
   });
-
-  return `${day} ${month} ${Number(year) + 543}`;
 }
 
 
