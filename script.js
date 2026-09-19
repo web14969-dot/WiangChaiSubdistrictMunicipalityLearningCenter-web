@@ -617,7 +617,7 @@ function loadNewsFromServer() {
         return `
           <article class="news-card">
             <div class="news-image">
-            &{item.image1 ?`<img src="${escapeNewsHTML(item.image1)}" alt="ภาพข่าว">` : '📰'}
+  ${item.image1 ? '<img src="' + escapeNewsHTML(item.image1) + '" alt="ภาพข่าว">' : '📰'}
 </div>
             <div>
               <small>${formatNewsDate(item.date)}</small>
