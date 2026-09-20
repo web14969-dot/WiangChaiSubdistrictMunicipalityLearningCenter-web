@@ -719,8 +719,16 @@ function escapeNewsHTML(text) {
 loadNewsFromServer();
 
 function escapeNewsHTML(text) {
+  if (text === null || text === undefined) {
+    return '';
+  }
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
-
 
 /* แปลงลิงก์ Google Drive เป็น URL สำหรับแสดงรูป */
 function getNewsImageUrl(url) {
@@ -730,6 +738,16 @@ function getNewsImageUrl(url) {
 
   const value = String(url).trim();
 
+  // ป้องกันค่าที่ไม่ใช่ URL จริง
+  if (
+    value === 'undefined' ||
+    value === 'null' ||
+    value === ''
+  ) {
+    return '';
+  }
+
+  // ถ้าเป็น Google Drive
   if (value.includes('drive.google.com')) {
     const match = value.match(/\/d\/([a-zA-Z0-9_-]+)/);
 
@@ -740,5 +758,6 @@ function getNewsImageUrl(url) {
     }
   }
 
+  // ถ้าเป็น URL รูปแบบอื่น ให้ใช้ URL เดิม
   return value;
 }
