@@ -617,8 +617,7 @@ function loadNewsFromServer() {
         return `
           <article class="news-card">
             <div class="news-image">
-  ${item.image1 ? '<img src="' + escapeNewsHTML(item.image1) + '" alt="ภาพข่าว">' : '📰'}
-</div>
+${item.image1 ? '<img src="' + escapeNewsHTML(getNewsImageUrl(item.image1)) + '" alt="ภาพข่าว">' : '📰'}
             <div>
               <small>${formatNewsDate(item.date)}</small>
               <h3>${escapeNewsHTML(item.title)}</h3>
@@ -715,5 +714,31 @@ function escapeNewsHTML(text) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+
 // โหลดข่าวเมื่อเปิดเว็บไซต์
 loadNewsFromServer();
+
+function escapeNewsHTML(text) {
+}
+
+
+/* แปลงลิงก์ Google Drive เป็น URL สำหรับแสดงรูป */
+function getNewsImageUrl(url) {
+  if (!url) {
+    return '';
+  }
+
+  const value = String(url).trim();
+
+  if (value.includes('drive.google.com')) {
+    const match = value.match(/\/d\/([a-zA-Z0-9_-]+)/);
+
+    if (match) {
+      const fileId = match[1];
+
+      return 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1200';
+    }
+  }
+
+  return value;
+}
