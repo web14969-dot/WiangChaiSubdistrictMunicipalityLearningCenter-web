@@ -9,3 +9,58 @@
   object-fit: cover;
   display: block;
 }
+
+/* ===============================
+   ปรับการแสดงผลข่าว / กิจกรรม
+   =============================== */
+
+/* กล่องรูปข่าว */
+.news-card .news-image {
+  height: 160px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #dce9df;
+}
+
+/* รูปข่าว */
+.news-card .news-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* เนื้อหาข่าว */
+.news-card > div:not(.news-image) {
+  padding: 16px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* วันที่ข่าว */
+.news-card small {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+/* หัวข้อข่าว */
+.news-card h3 {
+  font-size: 20px;
+  line-height: 1.4;
+  margin: 0 0 8px;
+}
+
+/* รายละเอียดข่าว */
+.news-card p {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* กรณีไม่มีรูป */
+.news-card .news-image {
+  font-size: 55px;
+}
