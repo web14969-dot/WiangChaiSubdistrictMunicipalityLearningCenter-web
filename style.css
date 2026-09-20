@@ -9,19 +9,38 @@
   object-fit: cover;
   display: block;
 }
+/* =================================
+   NEWS / ACTIVITIES
+   ================================= */
 
-/* ===============================
-   ปรับการแสดงผลข่าว / กิจกรรม
-   =============================== */
+/* กล่องรวมข่าว */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  align-items: start;
+}
 
-/* กล่องรูปข่าว */
-.news-card .news-image {
-  height: 160px;
+/* การ์ดข่าว */
+.news-card {
+  background: #e8f0eb;
+  border-radius: 16px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* พื้นที่รูปด้านบน */
+.news-card .news-image {
+  width: 100%;
+  height: 220px;
+  background: #dce9df;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #dce9df;
+  overflow: hidden;
+  font-size: 20px;
 }
 
 /* รูปข่าว */
@@ -32,35 +51,63 @@
   display: block;
 }
 
-/* เนื้อหาข่าว */
-.news-card > div:not(.news-image) {
-  padding: 16px;
+/* ข้อความด้านล่างรูป */
+.news-card > div:last-child {
+  padding: 18px 20px 22px;
+  display: block;
   font-size: 16px;
   line-height: 1.6;
 }
 
-/* วันที่ข่าว */
+/* วันที่ */
 .news-card small {
   display: block;
-  font-size: 13px;
-  margin-bottom: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 8px;
 }
 
 /* หัวข้อข่าว */
 .news-card h3 {
-  font-size: 20px;
-  line-height: 1.4;
   margin: 0 0 8px;
+  font-size: 22px;
+  line-height: 1.4;
+  font-weight: 700;
 }
 
-/* รายละเอียดข่าว */
+/* รายละเอียด */
 .news-card p {
-  font-size: 15px;
-  line-height: 1.6;
   margin: 0;
+  font-size: 16px;
+  line-height: 1.7;
 }
 
-/* กรณีไม่มีรูป */
-.news-card .news-image {
-  font-size: 55px;
+/* =================================
+   มือถือ
+   ================================= */
+
+@media (max-width: 900px) {
+  .news-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .news-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .news-card .news-image {
+    height: 200px;
+  }
+
+  .news-card h3 {
+    font-size: 20px;
+  }
+
+  .news-card p {
+    font-size: 15px;
+  }
 }
