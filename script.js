@@ -614,18 +614,38 @@ function loadNewsFromServer() {
       }
 
       newsList.innerHTML = publishedNews.map(item => {
-        return `
-          <article class="news-card">
-            <div class="news-image">
-${item.image1 ? '<img src="' + escapeNewsHTML(getNewsImageUrl(item.image1)) + '" alt="ภาพข่าว">' : '📰'}
-            <div>
-              <small>${formatNewsDate(item.date)}</small>
-              <h3>${escapeNewsHTML(item.title)}</h3>
-              <p>${escapeNewsHTML(item.detail)}</p>
-            </div>
-          </article>
-        `;
-      }).join('');
+  return `
+    <article class="news-card">
+
+      <div class="news-image">
+        ${
+          item.image1
+            ? '<img src="' +
+              escapeNewsHTML(getNewsImageUrl(item.image1)) +
+              '" alt="ภาพข่าว">'
+            : '📰'
+        }
+      </div>
+
+      <div class="news-content">
+
+        <small>
+          ${formatNewsDate(item.date)}
+        </small>
+
+        <h3>
+          ${escapeNewsHTML(item.title)}
+        </h3>
+
+        <p>
+          ${escapeNewsHTML(item.detail)}
+        </p>
+
+      </div>
+
+    </article>
+  `;
+}).join('');
 
     } catch (error) {
       console.error('โหลดข่าวไม่สำเร็จ:', error);
