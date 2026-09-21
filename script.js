@@ -615,7 +615,10 @@ function loadNewsFromServer() {
 
       newsList.innerHTML = publishedNews.map(item => {
   return `
-    <article class="news-card">
+    <article
+  class="news-card"
+  onclick="openNewsDetail(${item.id})"
+>
 
       <div class="news-image">
         ${
@@ -780,4 +783,9 @@ function getNewsImageUrl(url) {
 
   // ถ้าเป็น URL รูปแบบอื่น ให้ใช้ URL เดิม
   return value;
+}
+
+function openNewsDetail(id) {
+  window.location.href =
+    'news.html?id=' + encodeURIComponent(id);
 }
