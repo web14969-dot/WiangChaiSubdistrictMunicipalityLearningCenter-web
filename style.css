@@ -151,3 +151,87 @@
   }
 
 }
+
+/* =========================================
+   FIX: NEWS CARD ต้องเรียงแนวตั้ง
+   รูปบน / ข้อความล่าง
+   ========================================= */
+
+.news-card {
+  display: flex !important;
+  flex-direction: column !important;
+
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+
+  overflow: hidden !important;
+}
+
+/* รูปต้องอยู่ด้านบนเต็มความกว้าง */
+.news-card .news-image {
+  display: flex !important;
+
+  width: 100% !important;
+  height: 220px !important;
+  min-height: 220px !important;
+
+  flex: 0 0 220px !important;
+
+  overflow: hidden !important;
+}
+
+/* รูปจริง */
+.news-card .news-image img {
+  width: 100% !important;
+  height: 100% !important;
+
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* กล่องข้อความต้องอยู่ใต้รูป */
+.news-card > div:not(.news-image) {
+  display: block !important;
+
+  width: 100% !important;
+  max-width: 100% !important;
+
+  box-sizing: border-box !important;
+
+  padding: 18px 20px 22px !important;
+
+  position: static !important;
+  margin: 0 !important;
+}
+
+/* วันที่ */
+.news-card small {
+  display: block !important;
+  margin: 0 0 8px !important;
+
+  font-size: 14px !important;
+}
+
+/* หัวข้อ */
+.news-card h3 {
+  display: block !important;
+
+  margin: 0 0 8px !important;
+
+  font-size: 22px !important;
+  line-height: 1.4 !important;
+}
+
+/* รายละเอียด */
+.news-card p {
+  display: block !important;
+
+  margin: 0 !important;
+
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+}
