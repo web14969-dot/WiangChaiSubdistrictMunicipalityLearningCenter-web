@@ -603,6 +603,10 @@ function loadNewsFromServer() {
       }
 
       const news = response.data || [];
+     localStorage.setItem(
+  'newsData',
+  JSON.stringify(news)
+);
 
       const publishedNews = news.filter(item => {
         return item.status === 'เผยแพร่';
@@ -786,6 +790,32 @@ function getNewsImageUrl(url) {
 }
 
 function openNewsDetail(id) {
+  const newsId = String(id);
+
+  // ดึงข้อมูลข่าวที่โหลดไว้ในหน้าแรก
+  const savedNews = localStorage.getItem('newsData');
+
+  if (savedNews) {
+    try {
+      const newsList = JSON.parse(savedNews);
+
+      const selectedNews = newsList.find(item => {
+        return String(item.id) === newsId;
+      });
+
+      if (selectedNews) {
+        localStorage.setItem(
+          'selectedNews',
+          JSON.stringify(selectedNews)
+        );
+      }
+
+    } catch (error) {
+      console.error('ไม่สามารถอ่านข้อมูลข่าวได้:', error);
+    }
+  }
+
+  // เปิดหน้ารายละเอียด
   window.location.href =
-    'news.html?id=' + encodeURIComponent(id);
+    'news.html?id=' + encodeURIComponent(newsId);
 }
