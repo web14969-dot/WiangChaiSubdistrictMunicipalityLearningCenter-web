@@ -12,11 +12,111 @@
   <title>ข่าว / กิจกรรม - ศูนย์เรียนรู้เทศบาลตำบลเวียงชัย</title>
 
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    .news-detail {
+      padding: 60px 0;
+    }
+
+    .news-detail-card {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 30px;
+      box-sizing: border-box;
+    }
+
+    .news-detail-date {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 15px;
+      color: #6b7b73;
+    }
+
+    .news-detail-title {
+      margin: 0 0 20px;
+      font-size: 32px;
+      line-height: 1.4;
+      color: #183126;
+    }
+
+    .news-detail-image {
+      width: 100%;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+
+    .news-detail-image img {
+      width: 100%;
+      max-height: 600px;
+      object-fit: contain;
+      display: block;
+      border-radius: 16px;
+    }
+
+    .news-detail-text {
+      font-size: 18px;
+      line-height: 1.9;
+      color: #183126;
+      white-space: pre-line;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 12px 20px;
+      background: #247d50;
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+    }
+
+    .back-button:hover {
+      opacity: 0.9;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 80px 20px;
+      font-size: 20px;
+    }
+
+    .error {
+      text-align: center;
+      padding: 80px 20px;
+      color: #b00020;
+      font-size: 20px;
+    }
+
+    @media (max-width: 600px) {
+
+      .news-detail {
+        padding: 30px 0;
+      }
+
+      .news-detail-card {
+        padding: 20px;
+      }
+
+      .news-detail-title {
+        font-size: 25px;
+      }
+
+      .news-detail-text {
+        font-size: 16px;
+      }
+
+    }
+  </style>
+
 </head>
+
 
 <body>
 
   <header class="site-header">
+
     <div class="container">
 
       <a href="index.html" class="logo">
@@ -29,18 +129,21 @@
       </nav>
 
     </div>
+
   </header>
 
 
   <main>
 
-    <section class="section">
+    <section class="news-detail">
 
       <div class="container">
 
         <div id="newsDetail">
 
-          <p>กำลังโหลดข่าว...</p>
+          <div class="loading">
+            กำลังโหลดข่าว...
+          </div>
 
         </div>
 
@@ -51,9 +154,356 @@
   </main>
 
 
-  <script src="script.js"></script>
+  <script>
+
+    /* ========================================
+       URL ของ Google Apps Script
+       ======================================== */
+
+    const NEWS_API_URL =
+      'https://script.google.com/macros/s/AKfycbzj3LmnjvCFQbWj9loPdf4PXhqzdS2ilDFVjDt7YNn9h4d_zlO-wYKSJTCTGOKtibdOdQ/exec';
+
+
+    /* ========================================
+       อ่าน ID ข่าวจาก URL
+       เช่น news.html?id=2
+       ======================================== */
+
+    const params = new URLSearchParams(
+      window.location.search
+    );
+
+    const newsId = params.get('id');
+
+
+    /* ========================================
+       ป้องกัน HTML
+       ======================================== */
+
+    function escapeHTML(text) {
+
+      if (
+        text === null ||
+        text === undefined
+      ) {
+        return '';
+      }
+
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+    }
+
+
+    /* ========================================
+       แปลง Google Drive URL
+       ======================================== */
+
+    function getNewsImageUrl(url) {
+
+      if (!url) {
+        return '';
+      }
+
+      const value =
+        String(url).trim();
+
+
+      if (
+        value === 'undefined' ||
+        value === 'null' ||
+        value === ''
+      ) {
+        return '';
+      }
+
+
+      if (
+        value.includes('drive.google.com')
+      ) {
+
+        const match =
+          value.match(/\/d\/([a-zA-Z0-9_-]+)/);
+
+
+        if (match) {
+
+          const fileId =
+            match[1];
+
+          return (
+            'https://drive.google.com/thumbnail?id=' +
+            fileId +
+            '&sz=w1200'
+          );
+
+        }
+
+      }
+
+
+      return value;
+
+    }
+
+
+    /* ========================================
+       แปลงวันที่
+       ======================================== */
+
+    function formatNewsDate(dateValue) {
+
+      if (!dateValue) {
+        return '';
+      }
+
+
+      let value =
+        String(dateValue);
+
+
+      const match =
+        value.match(
+          /^(\d{4})-(\d{2})-(\d{2})(.*)$/
+        );
+
+
+      if (match) {
+
+        const year =
+          Number(match[1]);
+
+
+        if (year > 2400) {
+
+          value =
+            (year - 543) +
+            '-' +
+            match[2] +
+            '-' +
+            match[3] +
+            match[4];
+
+        }
+
+      }
+
+
+      const date =
+        new Date(value);
+
+
+      if (
+        isNaN(
+          date.getTime()
+        )
+      ) {
+
+        return dateValue;
+
+      }
+
+
+      return date.toLocaleDateString(
+        'th-TH',
+        {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          timeZone: 'Asia/Bangkok'
+        }
+      );
+
+    }
+
+
+    /* ========================================
+       แสดงรายละเอียดข่าว
+       ======================================== */
+
+    function showNewsDetail(response) {
+
+      const container =
+        document.getElementById(
+          'newsDetail'
+        );
+
+
+      if (
+        !response ||
+        !response.success
+      ) {
+
+        container.innerHTML =
+          '<div class="error">' +
+          'ไม่สามารถโหลดข้อมูลข่าวได้' +
+          '</div>';
+
+        return;
+
+      }
+
+
+      const news =
+        response.data || [];
+
+
+      const item =
+        news.find(
+          newsItem =>
+            String(newsItem.id) ===
+            String(newsId)
+        );
+
+
+      if (!item) {
+
+        container.innerHTML =
+          '<div class="error">' +
+          'ไม่พบข่าวที่ต้องการ' +
+          '</div>';
+
+        return;
+
+      }
+
+
+      let imageHTML = '';
+
+
+      if (item.image1) {
+
+        const imageUrl =
+          getNewsImageUrl(
+            item.image1
+          );
+
+
+        if (imageUrl) {
+
+          imageHTML =
+            '<div class="news-detail-image">' +
+              '<img src="' +
+              escapeHTML(imageUrl) +
+              '" alt="ภาพข่าว">' +
+            '</div>';
+
+        }
+
+      }
+
+
+      container.innerHTML =
+
+        '<article class="news-detail-card">' +
+
+          imageHTML +
+
+          '<small class="news-detail-date">' +
+            escapeHTML(
+              formatNewsDate(item.date)
+            ) +
+          '</small>' +
+
+          '<h1 class="news-detail-title">' +
+            escapeHTML(item.title) +
+          '</h1>' +
+
+          '<div class="news-detail-text">' +
+            escapeHTML(item.detail) +
+          '</div>' +
+
+          '<a ' +
+            'href="index.html#news" ' +
+            'class="back-button">' +
+            '← กลับไปหน้าข่าว' +
+          '</a>' +
+
+        '</article>';
+
+    }
+
+
+    /* ========================================
+       ถ้าไม่มี ID
+       ======================================== */
+
+    if (!newsId) {
+
+      document.getElementById(
+        'newsDetail'
+      ).innerHTML =
+
+        '<div class="error">' +
+        'ไม่พบรหัสข่าว' +
+        '</div>';
+
+    }
+
+
+    /* ========================================
+       โหลดข้อมูลข่าวด้วย JSONP
+       ======================================== */
+
+    else {
+
+      const callbackName =
+        'showNewsDetail_' +
+        Date.now();
+
+
+      window[callbackName] =
+        showNewsDetail;
+
+
+      const script =
+        document.createElement(
+          'script'
+        );
+
+
+      script.src =
+        NEWS_API_URL +
+        '?action=news' +
+        '&callback=' +
+        callbackName +
+        '&t=' +
+        Date.now();
+
+
+      script.onerror =
+        function() {
+
+          document.getElementById(
+            'newsDetail'
+          ).innerHTML =
+
+            '<div class="error">' +
+            'ไม่สามารถเชื่อมต่อระบบข่าวได้' +
+            '</div>';
+
+
+          delete window[
+            callbackName
+          ];
+
+          script.remove();
+
+        };
+
+
+      document.body.appendChild(
+        script
+      );
+
+    }
+
+  </script>
 
 </body>
 
 </html>
-
